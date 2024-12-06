@@ -19,8 +19,13 @@ enum Jenis_Kelamin {
 }
 
 enum Status {
-  SUDAH
-  BELUM
+  LUNAS
+  BELUM_LUNAS
+}
+
+enum Role {
+  KARYAWAN
+  CUSTOMER
 }
 
 enum Method {
@@ -31,6 +36,7 @@ enum Method {
 
 model Alat {
   id              Int               @id @default(autoincrement())
+  uuid            String            @unique @default("")
   name            String            @default("")
   color           String            @default("")
   stock           Int               @default(0)
@@ -39,57 +45,49 @@ model Alat {
   pict            String            @default("")
   createdAt       DateTime          @default(now())
   updateAt        DateTime          @updatedAt
-  detailtransaksi DetailTransaksi[]
+  orderList       OrderList[]
 }
 
 model User {
   id            Int           @id @default(autoincrement())
+  uuid          String        @unique @default("")
   email         String        @unique @default("")
   pasword       String        @default("")
+  profile_picture String      @default("")
   name          String        @default("")
   no_telp       String        @default("")
   alamat        String        @default("") @db.Text
   jenis_kelamin Jenis_Kelamin @default(P)
+  role          Role          @default(CUSTOMER)
   createdAt     DateTime      @default(now())
   updateAt      DateTime      @updatedAt
-  detailuser    Transaksi[]
+  detailuser    Order[]
 }
 
-model Karyawan {
-  id             Int           @id @default(autoincrement())
-  email          String        @unique @default("")
-  password       String        @default("")
-  name           String        @default("")
-  no_telp        String        @default("")
-  alamat         String        @default("") @db.Text
-  jenis_kelamin  Jenis_Kelamin @default(P)
-  createdAt      DateTime      @default(now())
-  updateAt       DateTime      @updatedAt
-  detailkaryawan Transaksi[]
-}
-
-model Transaksi {
+model Order {
   id              Int               @id @default(autoincrement())
+  uuid            String            @unique @default("")
+  customer        String            @default("")
   user            User?             @relation(fields: [idUser], references: [id])
   idUser          Int?
-  karyawan        Karyawan?         @relation(fields: [idKaryawan], references: [id])
-  idKaryawan      Int?
-  totalPrice      Int               @default(0)
-  statusBayar     Status            @default(SUDAH)
+  totalPrice      Int               @default(0) 
+  statusBayar     Status            @default(BELUM_LUNAS)
   tglTransaksi    DateTime          @default(now())
   payment_method  Method            @default(CASH)
   tanggal_mulai   DateTime          @default(now())
   tanggal_akhir   DateTime          @default(now())
+  tanggal_kembali DateTime          @default(now())
   bukti_bayar     String            @default("")
   createdAt       DateTime          @default(now())
   updateAt        DateTime          @updatedAt
-  detailTransaksi DetailTransaksi[]
+  orderList       OrderList[]
 }
 
-model DetailTransaksi {
+model OrderList {
   id          Int        @id @default(autoincrement())
-  idTransaksi Int?
-  transaksi   Transaksi? @relation(fields: [idTransaksi], references: [id])
+  uuid        String     @unique @default("")
+  idOrder     Int?
+  order       Order?     @relation(fields: [idOrder], references: [id])
   idAlat      Int?
   alat        Alat?      @relation(fields: [idAlat], references: [id])
   jumlah      Int        @default(0)
